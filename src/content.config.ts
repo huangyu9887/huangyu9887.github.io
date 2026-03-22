@@ -2,19 +2,36 @@ import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 
-const blog = defineCollection({
-	// Load Markdown and MDX files in the `src/content/blog/` directory.
-	loader: glob({ base: './src/content/blog', pattern: '**/*.{md,mdx}' }),
-	// Type-check frontmatter using a schema
-	schema: ({ image }) =>
-		z.object({
-			title: z.string(),
-			description: z.string(),
-			// Transform string to Date object
-			pubDate: z.coerce.date(),
-			updatedDate: z.coerce.date().optional(),
-			heroImage: z.optional(image()),
-		}),
+const postSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  pubDate: z.coerce.date().transform(d => new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())),
+  updatedDate: z.coerce.date().transform(d => new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())).optional(),
 });
 
-export const collections = { blog };
+const essays = defineCollection({
+  loader: glob({ base: './src/content/essays', pattern: '**/*.{md,mdx}' }),
+  schema: postSchema,
+});
+
+const works = defineCollection({
+  loader: glob({ base: './src/content/works', pattern: '**/*.{md,mdx}' }),
+  schema: postSchema,
+});
+
+const design = defineCollection({
+  loader: glob({ base: './src/content/design', pattern: '**/*.{md,mdx}' }),
+  schema: postSchema,
+});
+
+const comm = defineCollection({
+  loader: glob({ base: './src/content/comm', pattern: '**/*.{md,mdx}' }),
+  schema: postSchema,
+});
+
+const daily = defineCollection({
+  loader: glob({ base: './src/content/daily', pattern: '**/*.{md,mdx}' }),
+  schema: postSchema,
+});
+
+export const collections = { essays, works, design, comm, daily };

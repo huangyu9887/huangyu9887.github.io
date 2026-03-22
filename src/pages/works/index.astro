@@ -1,0 +1,54 @@
+---
+import { getCollection } from 'astro:content';
+import BaseHead from '../../components/BaseHead.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+
+const posts = (await getCollection('works')).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+
+function formatDate(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}.${m}.${d}`;
+}
+---
+<html lang="zh-CN">
+  <head><BaseHead title="作品" description="做过的东西，留个记录。" /></head>
+  <body>
+    <Header />
+    <main>
+      <div class="page">
+        <p class="column-intro">做过的东西，留个记录。代码、工具、小实验都算。</p>
+        <div class="post-list">
+          {posts.map((post) => (
+            <a class="post-item" href={`/works/${post.id}/`}>
+              <span class="post-date">{formatDate(post.data.pubDate)}</span>
+              <div>
+                <p class="post-title">{post.data.title}</p>
+                <p class="post-excerpt">{post.data.description}</p>
+              </div>
+            </a>
+          ))}
+          {posts.length === 0 && <p class="empty">还没有内容。</p>}
+        </div>
+      </div>
+    </main>
+    <Footer />
+  </body>
+</html>
+<style>
+  main { padding: 44px 5vw 0; }
+  .page { max-width: 660px; margin: 0 auto; }
+  .column-intro { font-size: 13px; color: var(--muted); font-weight: 300; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+  .post-list { display: flex; flex-direction: column; }
+  .post-item { display: grid; grid-template-columns: 60px 1fr; gap: 0 18px; padding: 12px 0; border-bottom: 1px solid var(--border); text-decoration: none; color: inherit; transition: opacity 0.15s; }
+  .post-item:last-child { border-bottom: none; }
+  .post-item:hover { opacity: 0.6; }
+  .post-date { font-size: 12px; color: var(--muted); font-weight: 300; white-space: nowrap; padding-top: 2px; }
+  .post-title { font-family: var(--serif); font-size: 15px; font-weight: 400; color: var(--text); line-height: 1.5; margin-bottom: 3px; }
+  .post-excerpt { font-size: 12px; color: var(--muted); font-weight: 300; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+  .empty { font-size: 13px; color: var(--faint); font-weight: 300; padding: 24px 0; }
+</style>
